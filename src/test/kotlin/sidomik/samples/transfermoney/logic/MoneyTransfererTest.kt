@@ -46,6 +46,14 @@ class MoneyTransfererTest {
     }
 
     @Test
+    fun transferAllTheMoney() {
+        MoneyTransferer.transferMoney(account1.id, account2.id, "EUR", 1000.0)
+
+        assertThat(account1.balance).isCloseTo(1000.0 - 1000.0, withPercentage(0.001))
+        assertThat(account2.balance).isCloseTo(1000.0 + 1000.0 * eurUsdRate, withPercentage(0.001))
+    }
+
+    @Test
     fun threeCurrencies() {
         MoneyTransferer.transferMoney(account2.id, account3.id, "EUR", 500.0)
 
