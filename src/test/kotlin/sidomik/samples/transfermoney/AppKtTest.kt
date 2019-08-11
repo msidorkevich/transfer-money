@@ -61,13 +61,18 @@ class AppKtTest {
         val account1 = createAccount(Account("John Smith", "EUR", 1000.0))
         val account2 = createAccount(Account("Jonny Walker", "EUR", 1000.0))
 
-        transferMoney(account1.id, account2.id, "EUR", 500.0)
+        transferMoneySuccess(account1.id, account2.id, "EUR", 500.0)
 
         val account1Balance = findExistingAccount(account1.id).balance
         val account2Balance = findExistingAccount(account2.id).balance
 
         assertThat(account1Balance).isCloseTo(500.0, withPercentage(0.001))
         assertThat(account2Balance).isCloseTo(1500.0, withPercentage(0.001))
+    }
+
+    @Test
+    fun transferMoneyNonExistingAccount() {
+        transferMoneyNotSuccess(12345, 23456, "EUR", 500.0)
     }
 
     private fun createAccount(account: Account): Account {
@@ -112,7 +117,7 @@ class AppKtTest {
         }
     }
 
-    private fun transferMoney(from: Long, to: Long, currency: String, amount: Double) {
+    private fun transferMoneySuccess(from: Long, to: Long, currency: String, amount: Double) {
         val response: Response = httpPost {
             host = "localhost"
             port = 8000
@@ -125,6 +130,22 @@ class AppKtTest {
 
         response.use {
             assertThat(it.code()).isEqualTo(200)
+        }
+    }
+
+    private fun transferMoneyNotSuccess(from: Long, to: Long, currency: String, amount: Double) {
+        val response: Response = httpPost {
+            host = "localhost"
+            port = 8000
+            path = TRANSFERS_ENDPOINT
+
+            body("application/json") {
+                json(jsonMapper.writeValueAsString(Transfer(from, to, currency, amount)))
+            }
+        }
+
+        response.use {
+            assertThat(it.code()).isEqualTo(404)
         }
     }
 }
