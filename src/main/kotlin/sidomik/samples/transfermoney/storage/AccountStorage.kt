@@ -2,12 +2,13 @@ package sidomik.samples.transfermoney.storage
 
 import sidomik.samples.transfermoney.model.Account
 import java.lang.IllegalArgumentException
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicLong
 
 object AccountStorage {
 
     private val idSequence = AtomicLong()
-    private val accounts = mutableListOf<Account>()
+    private val accounts = CopyOnWriteArrayList<Account>()
 
     fun create(account: Account): Account {
         account.id = idSequence.incrementAndGet()
