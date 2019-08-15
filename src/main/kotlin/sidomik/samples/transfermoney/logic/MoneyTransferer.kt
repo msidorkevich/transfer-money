@@ -1,10 +1,11 @@
 package sidomik.samples.transfermoney.logic
 
 import sidomik.samples.transfermoney.storage.AccountStorage
+import java.math.BigDecimal
 
 object MoneyTransferer {
 
-    fun transferMoney(from: Long, to: Long, amount: Double) {
+    fun transferMoney(from: Long, to: Long, amount: BigDecimal) {
         if (from < to) {
             transferThreadSafe(from, to, amount)
         } else {
@@ -12,7 +13,7 @@ object MoneyTransferer {
         }
     }
 
-    private fun transferThreadSafe(from: Long, to: Long, amount: Double) {
+    private fun transferThreadSafe(from: Long, to: Long, amount: BigDecimal) {
         val fromAccount = AccountStorage.find(from)
         val toAccount = AccountStorage.find(to)
 

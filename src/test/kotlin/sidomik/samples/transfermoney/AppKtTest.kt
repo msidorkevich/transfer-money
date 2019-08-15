@@ -5,12 +5,12 @@ import io.github.rybalkinsd.kohttp.dsl.httpGet
 import io.github.rybalkinsd.kohttp.dsl.httpPost
 import okhttp3.Response
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.data.Percentage.withPercentage
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
 import sidomik.samples.transfermoney.model.Account
 import sidomik.samples.transfermoney.model.Transfer
+import java.math.BigDecimal
 
 
 class AppKtTest {
@@ -33,7 +33,7 @@ class AppKtTest {
 
     @Test
     fun createAccount()  {
-        val account = Account("John Smith", 123.456)
+        val account = Account("John Smith", BigDecimal("123.456"))
         val actualAccount = createAccount(account)
 
         assertThat(actualAccount.id).isGreaterThan(0)
@@ -43,7 +43,7 @@ class AppKtTest {
 
     @Test
     fun findExistingAccount() {
-        val account = Account("Jonny Walker", 123.456)
+        val account = Account("Jonny Walker", BigDecimal("123.456"))
         val createdAccount = createAccount(account)
         val foundedAccount = findExistingAccount(createdAccount.id)
 
@@ -57,21 +57,35 @@ class AppKtTest {
 
     @Test
     fun transferMoney() {
-        val account1 = createAccount(Account("John Smith", 1000.0))
-        val account2 = createAccount(Account("Jonny Walker", 1000.0))
+        val account1 = createAccount(Account("John Smith", BigDecimal("1000.0")))
+        val account2 = createAccount(Account("Jonny Walker", BigDecimal("1000.0")))
 
-        transferMoneySuccess(account1.id, account2.id, 500.0)
+        transferMoneySuccess(account1.id, account2.id, BigDecimal("500.0"))
 
         val account1Balance = findExistingAccount(account1.id).balance
         val account2Balance = findExistingAccount(account2.id).balance
 
-        assertThat(account1Balance).isCloseTo(500.0, withPercentage(0.001))
-        assertThat(account2Balance).isCloseTo(1500.0, withPercentage(0.001))
+        assertThat(account1Balance).isEqualByComparingTo(BigDecimal("500.0"))
+        assertThat(account2Balance).isEqualByComparingTo(BigDecimal("1500.0"))
     }
 
     @Test
     fun transferMoneyNonExistingAccount() {
-        transferMoneyNotSuccess(12345, 23456, 500.0)
+        transferMoneyNotSuccess(12345, 23456, BigDecimal("500.0"))
+    }
+
+    @Test
+    fun transferAccuracy() {
+        val account1 = createAccount(Account("John Smith", BigDecimal("200.123")))
+        val account2 = createAccount(Account("Jonny Walker", BigDecimal("299.877")))
+
+        transferMoneySuccess(account1.id, account2.id, BigDecimal("100.123"))
+
+        val account1Balance = findExistingAccount(account1.id).balance
+        val account2Balance = findExistingAccount(account2.id).balance
+
+        assertThat(account1Balance).isEqualByComparingTo(BigDecimal("100.0"))
+        assertThat(account2Balance).isEqualByComparingTo(BigDecimal("400.0"))
     }
 
     private fun createAccount(account: Account): Account {
@@ -116,7 +130,7 @@ class AppKtTest {
         }
     }
 
-    private fun transferMoneySuccess(from: Long, to: Long, amount: Double) {
+    private fun transferMoneySuccess(from: Long, to: Long, amount: BigDecimal) {
         val response: Response = httpPost {
             host = "localhost"
             port = 8000
@@ -132,7 +146,7 @@ class AppKtTest {
         }
     }
 
-    private fun transferMoneyNotSuccess(from: Long, to: Long, amount: Double) {
+    private fun transferMoneyNotSuccess(from: Long, to: Long, amount: BigDecimal) {
         val response: Response = httpPost {
             host = "localhost"
             port = 8000
