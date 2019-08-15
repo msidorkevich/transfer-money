@@ -6,7 +6,7 @@ import org.junit.Test
 
 class AccountTest {
 
-    val account = Account("John Smith", "EUR", 1000.0)
+    val account = Account("John Smith", 1000.0)
 
     @Test (expected = IllegalArgumentException::class)
     fun notEnoughBalance() {

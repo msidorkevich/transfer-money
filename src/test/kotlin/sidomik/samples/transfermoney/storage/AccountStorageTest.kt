@@ -9,7 +9,7 @@ class AccountStorageTest {
 
     @Test
     fun createAccountFillsId() {
-        val account = Account("John Smith", "EUR", 1000.0)
+        val account = Account("John Smith", 1000.0)
 
         AccountStorage.create(account)
 

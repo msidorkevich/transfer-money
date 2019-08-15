@@ -3,7 +3,6 @@ package sidomik.samples.transfermoney.model
 import java.lang.IllegalArgumentException
 
 data class Account(val name: String,
-                   val currency: String,
                    var balance: Double) {
     var id: Long = -1
 

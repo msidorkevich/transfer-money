@@ -33,18 +33,17 @@ class AppKtTest {
 
     @Test
     fun createAccount()  {
-        val account = Account("John Smith", "EUR", 123.456)
+        val account = Account("John Smith", 123.456)
         val actualAccount = createAccount(account)
 
         assertThat(actualAccount.id).isGreaterThan(0)
         assertThat(actualAccount.name).isEqualTo(account.name)
-        assertThat(actualAccount.currency).isEqualTo(account.currency)
         assertThat(actualAccount.balance).isEqualTo(account.balance)
     }
 
     @Test
     fun findExistingAccount() {
-        val account = Account("Jonny Walker", "USD", 123.456)
+        val account = Account("Jonny Walker", 123.456)
         val createdAccount = createAccount(account)
         val foundedAccount = findExistingAccount(createdAccount.id)
 
@@ -58,10 +57,10 @@ class AppKtTest {
 
     @Test
     fun transferMoney() {
-        val account1 = createAccount(Account("John Smith", "EUR", 1000.0))
-        val account2 = createAccount(Account("Jonny Walker", "EUR", 1000.0))
+        val account1 = createAccount(Account("John Smith", 1000.0))
+        val account2 = createAccount(Account("Jonny Walker", 1000.0))
 
-        transferMoneySuccess(account1.id, account2.id, "EUR", 500.0)
+        transferMoneySuccess(account1.id, account2.id, 500.0)
 
         val account1Balance = findExistingAccount(account1.id).balance
         val account2Balance = findExistingAccount(account2.id).balance
@@ -72,7 +71,7 @@ class AppKtTest {
 
     @Test
     fun transferMoneyNonExistingAccount() {
-        transferMoneyNotSuccess(12345, 23456, "EUR", 500.0)
+        transferMoneyNotSuccess(12345, 23456, 500.0)
     }
 
     private fun createAccount(account: Account): Account {
@@ -117,14 +116,14 @@ class AppKtTest {
         }
     }
 
-    private fun transferMoneySuccess(from: Long, to: Long, currency: String, amount: Double) {
+    private fun transferMoneySuccess(from: Long, to: Long, amount: Double) {
         val response: Response = httpPost {
             host = "localhost"
             port = 8000
             path = TRANSFERS_ENDPOINT
 
             body("application/json") {
-                json(jsonMapper.writeValueAsString(Transfer(from, to, currency, amount)))
+                json(jsonMapper.writeValueAsString(Transfer(from, to, amount)))
             }
         }
 
@@ -133,14 +132,14 @@ class AppKtTest {
         }
     }
 
-    private fun transferMoneyNotSuccess(from: Long, to: Long, currency: String, amount: Double) {
+    private fun transferMoneyNotSuccess(from: Long, to: Long, amount: Double) {
         val response: Response = httpPost {
             host = "localhost"
             port = 8000
             path = TRANSFERS_ENDPOINT
 
             body("application/json") {
-                json(jsonMapper.writeValueAsString(Transfer(from, to, currency, amount)))
+                json(jsonMapper.writeValueAsString(Transfer(from, to, amount)))
             }
         }
 

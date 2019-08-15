@@ -38,7 +38,7 @@ val restServer: Javalin =
         }
         post(TRANSFERS_ENDPOINT) { ctx ->
             val transfer = ctx.body<Transfer>()
-            MoneyTransferer.transferMoney(transfer.from, transfer.to, transfer.currency, transfer.amount)
+            MoneyTransferer.transferMoney(transfer.from, transfer.to, transfer.amount)
             ctx.status(200)
         }
     }
