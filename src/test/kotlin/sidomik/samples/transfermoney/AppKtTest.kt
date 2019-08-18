@@ -33,7 +33,6 @@ class AppKtTest {
     fun createAccount()  {
         val account = Account("John Smith", BigDecimal("123.456"))
         val response = createAccount(account)
-
         assertThat(response.code()).isEqualTo(HTTP_CREATED)
 
         val createdAccount = parseCreateAccountResponse(response)
@@ -47,7 +46,6 @@ class AppKtTest {
     fun createAccountWithZeroBalance()  {
         val account = Account("John Smith", BigDecimal.ZERO)
         val response = createAccount(account)
-
         assertThat(response.code()).isEqualTo(HTTP_CREATED)
 
         val createdAccount = parseCreateAccountResponse(response)
