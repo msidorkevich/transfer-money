@@ -19,6 +19,11 @@ const val TRANSFERS_ENDPOINT = "$API_ENDPOINT/transfers"
 const val ACCOUNTS_CREATE_ENDPOINT = "$ACCOUNTS_ENDPOINT/create"
 const val ACCOUNTS_FIND_ENDPOINT = "$ACCOUNTS_ENDPOINT/:id"
 
+const val HTTP_OK = 200
+const val HTTP_CREATED = 201
+const val HTTP_BAD_REQUEST = 400
+const val HTTP_NOT_FOUND = 404
+
 private val logger = LoggerFactory.getLogger("rest-controller")
 
 val restServer: Javalin =
@@ -26,30 +31,30 @@ val restServer: Javalin =
         exception(NegativeBalanceException::class.java) { e, ctx ->
             val errorMessage = "Cant create account with negative balance ${e.balance}"
             logger.error(errorMessage, e)
-            ctx.status(400)
+            ctx.status(HTTP_BAD_REQUEST)
             ctx.result(errorMessage)
         }
         exception(NonExistingAccountException::class.java) { e, ctx ->
             val errorMessage = "Can't find account with id ${e.id}"
             logger.error(errorMessage, e)
-            ctx.status(404)
+            ctx.status(HTTP_NOT_FOUND)
             ctx.result(errorMessage)
         }
         exception(NonPositiveAmountException::class.java) { e, ctx ->
             val errorMessage = "Amount should be positive, but is ${e.amount.toPlainString()}"
             logger.error(errorMessage, e)
-            ctx.status(400)
+            ctx.status(HTTP_BAD_REQUEST)
             ctx.result(errorMessage)
         }
         exception(NotEnoughMoneyException::class.java) { e, ctx ->
             val errorMessage = "Not enough money on account ${e.id} to withdraw ${e.amount}, current balance is ${e.balance}"
             logger.error(errorMessage, e)
-            ctx.status(400)
+            ctx.status(HTTP_BAD_REQUEST)
             ctx.result(errorMessage)
         }
         exception(Exception::class.java) { e, ctx ->
             logger.error("Error while executing request ${ctx.req}", e)
-            ctx.status(404)
+            ctx.status(HTTP_NOT_FOUND)
             ctx.result(e.message ?: "General Error")
         }
     }.routes {
@@ -57,17 +62,17 @@ val restServer: Javalin =
             val account = ctx.body<Account>()
             val createdAccount = AccountStorage.create(account)
             ctx.json(createdAccount)
-            ctx.status(201)
+            ctx.status(HTTP_CREATED)
         }
         get(ACCOUNTS_FIND_ENDPOINT) { ctx ->
             val id = ctx.pathParam("id").toLong()
             ctx.json(AccountStorage.find(id))
-            ctx.status(200)
+            ctx.status(HTTP_OK)
         }
         post(TRANSFERS_ENDPOINT) { ctx ->
             val transfer = ctx.body<Transfer>()
             MoneyTransferer.transferMoney(transfer.from, transfer.to, transfer.amount)
-            ctx.status(200)
+            ctx.status(HTTP_OK)
         }
     }
 
