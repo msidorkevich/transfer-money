@@ -19,6 +19,7 @@
         <slf4j.version>1.7.25</slf4j.version>
         <kohttp.version>0.10.0</kohttp.version>
         <assert4j.version>3.13.2</assert4j.version>
+        <guava.version>28.0-jre</guava.version>
 
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     </properties>
@@ -60,6 +61,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
 
         <dependency>

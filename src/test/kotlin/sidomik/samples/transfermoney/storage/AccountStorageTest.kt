@@ -5,6 +5,7 @@ import org.junit.Test
 import sidomik.samples.transfermoney.exceptions.NegativeBalanceException
 import sidomik.samples.transfermoney.exceptions.NonExistingAccountException
 import sidomik.samples.transfermoney.model.Account
+import sidomik.samples.transfermoney.model.AccountId
 import java.math.BigDecimal
 
 class AccountStorageTest {
@@ -15,7 +16,7 @@ class AccountStorageTest {
 
         AccountStorage.create(account)
 
-        assertThat(account.id).isNotEqualTo(-1)
+        assertThat(account.accountId).isNotEqualTo(-1)
         assertThat(account.name).isEqualTo("John Smith")
         assertThat(account.balance).isEqualTo(BigDecimal("1000.0"))
     }
@@ -26,7 +27,7 @@ class AccountStorageTest {
 
         AccountStorage.create(account)
 
-        assertThat(account.id).isNotEqualTo(-1)
+        assertThat(account.accountId).isNotEqualTo(-1)
         assertThat(account.name).isEqualTo("John Smith")
         assertThat(account.balance).isEqualTo(BigDecimal.ZERO)
     }
@@ -40,6 +41,6 @@ class AccountStorageTest {
 
     @Test (expected = NonExistingAccountException::class)
     fun findNonExistingAccount() {
-        AccountStorage.find(12345)
+        AccountStorage.find(AccountId(12345))
     }
 }

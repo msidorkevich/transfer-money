@@ -9,6 +9,7 @@ import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
 import sidomik.samples.transfermoney.model.Account
+import sidomik.samples.transfermoney.model.AccountId
 import sidomik.samples.transfermoney.model.Transfer
 import java.math.BigDecimal
 
@@ -37,7 +38,7 @@ class AppKtTest {
 
         val createdAccount = parseCreateAccountResponse(response)
 
-        assertThat(createdAccount.id).isGreaterThan(0)
+        assertThat(createdAccount.accountId.id).isGreaterThan(0)
         assertThat(createdAccount.name).isEqualTo(account.name)
         assertThat(createdAccount.balance).isEqualTo(account.balance)
     }
@@ -50,7 +51,7 @@ class AppKtTest {
 
         val createdAccount = parseCreateAccountResponse(response)
 
-        assertThat(createdAccount.id).isGreaterThan(0)
+        assertThat(createdAccount.accountId.id).isGreaterThan(0)
         assertThat(createdAccount.name).isEqualTo(account.name)
         assertThat(createdAccount.balance).isEqualTo(account.balance)
     }
@@ -72,7 +73,7 @@ class AppKtTest {
         assertThat(createAccountResponse.code()).isEqualTo(HTTP_CREATED)
         val createdAccount = parseCreateAccountResponse(createAccountResponse)
 
-        val findAccountResponse = findAccount(createdAccount.id)
+        val findAccountResponse = findAccount(createdAccount.accountId)
         assertThat(findAccountResponse.code()).isEqualTo(HTTP_OK)
         val foundedAccount = parseFindAccountResponse(findAccountResponse)
 
@@ -81,7 +82,7 @@ class AppKtTest {
 
     @Test
     fun findNonExistingAccount() {
-        val response = findAccount(0)
+        val response = findAccount(AccountId(0))
 
         assertThat(response.code()).isEqualTo(HTTP_NOT_FOUND)
         assertThat(response.body()?.string()).isEqualTo("Can't find account with id 0")
@@ -97,11 +98,11 @@ class AppKtTest {
         val account1 = parseCreateAccountResponse(createAccount1Response)
         val account2 = parseCreateAccountResponse(createAccount2Response)
 
-        val transferMoneyResponse = transferMoney(account1.id, account2.id, BigDecimal("500.0"))
+        val transferMoneyResponse = transferMoney(account1.accountId, account2.accountId, BigDecimal("500.0"))
         assertThat(transferMoneyResponse.code()).isEqualTo(HTTP_OK)
 
-        val findAccount1Response = findAccount(account1.id)
-        val findAccount2Response = findAccount(account2.id)
+        val findAccount1Response = findAccount(account1.accountId)
+        val findAccount2Response = findAccount(account2.accountId)
         assertThat(findAccount1Response.code()).isEqualTo(HTTP_OK)
         assertThat(findAccount2Response.code()).isEqualTo(HTTP_OK)
 
@@ -114,7 +115,7 @@ class AppKtTest {
 
     @Test
     fun transferMoneyNonExistingAccount() {
-        val response = transferMoney(12345, 23456, BigDecimal("500.0"))
+        val response = transferMoney(AccountId(12345), AccountId(23456), BigDecimal("500.0"))
 
         assertThat(response.code()).isEqualTo(HTTP_NOT_FOUND)
         assertThat(response.body()?.string()).isEqualTo("Can't find account with id 12345")
@@ -129,11 +130,11 @@ class AppKtTest {
         val account1 = parseCreateAccountResponse(account1Response)
         val account2 = parseCreateAccountResponse(account2Response)
 
-        val response = transferMoney(account1.id, account2.id, BigDecimal("100.123"))
+        val response = transferMoney(account1.accountId, account2.accountId, BigDecimal("100.123"))
         assertThat(response.code()).isEqualTo(HTTP_OK)
 
-        val account1Balance = parseFindAccountResponse(findAccount(account1.id)).balance
-        val account2Balance = parseFindAccountResponse(findAccount(account2.id)).balance
+        val account1Balance = parseFindAccountResponse(findAccount(account1.accountId)).balance
+        val account2Balance = parseFindAccountResponse(findAccount(account2.accountId)).balance
 
         assertThat(account1Balance).isEqualByComparingTo(BigDecimal("100.0"))
         assertThat(account2Balance).isEqualByComparingTo(BigDecimal("400.0"))
@@ -148,7 +149,7 @@ class AppKtTest {
         val account1 = parseCreateAccountResponse(createAccount1Response)
         val account2 = parseCreateAccountResponse(createAccount2Response)
 
-        val response = transferMoney(account1.id, account2.id, BigDecimal("-0.00000001"))
+        val response = transferMoney(account1.accountId, account2.accountId, BigDecimal("-0.00000001"))
         assertThat(response.code()).isEqualTo(HTTP_BAD_REQUEST)
         assertThat(response.body()?.string()).isEqualTo("Amount should be positive, but is -0.00000001")
     }
@@ -162,7 +163,7 @@ class AppKtTest {
         val account1 = parseCreateAccountResponse(createAccount1Response)
         val account2 = parseCreateAccountResponse(createAccount2Response)
 
-        val response = transferMoney(account1.id, account2.id, BigDecimal.ZERO)
+        val response = transferMoney(account1.accountId, account2.accountId, BigDecimal.ZERO)
         assertThat(response.code()).isEqualTo(HTTP_BAD_REQUEST)
         assertThat(response.body()?.string()).isEqualTo("Amount should be positive, but is 0")
     }
@@ -183,11 +184,11 @@ class AppKtTest {
         return jsonMapper.readValue(response.body()?.string(), Account::class.java)
     }
 
-    private fun findAccount(id: Long): Response {
+    private fun findAccount(accountId: AccountId): Response {
         return httpGet {
             host = "localhost"
             port = 8000
-            path = "$ACCOUNTS_ENDPOINT/$id"
+            path = "$ACCOUNTS_ENDPOINT/${accountId.id}"
         }
     }
 
@@ -195,7 +196,7 @@ class AppKtTest {
         return jsonMapper.readValue(response.body()?.string(), Account::class.java)
     }
 
-    private fun transferMoney(from: Long, to: Long, amount: BigDecimal): Response {
+    private fun transferMoney(from: AccountId, to: AccountId, amount: BigDecimal): Response {
         return httpPost {
             host = "localhost"
             port = 8000

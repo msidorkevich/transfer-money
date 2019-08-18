@@ -10,6 +10,7 @@ import sidomik.samples.transfermoney.exceptions.NonPositiveAmountException
 import sidomik.samples.transfermoney.exceptions.NotEnoughMoneyException
 import sidomik.samples.transfermoney.logic.MoneyTransferer
 import sidomik.samples.transfermoney.model.Account
+import sidomik.samples.transfermoney.model.AccountId
 import sidomik.samples.transfermoney.model.Transfer
 import sidomik.samples.transfermoney.storage.AccountStorage
 
@@ -35,7 +36,7 @@ val restServer: Javalin =
             ctx.result(errorMessage)
         }
         exception(NonExistingAccountException::class.java) { e, ctx ->
-            val errorMessage = "Can't find account with id ${e.id}"
+            val errorMessage = "Can't find account with id ${e.accountId.id}"
             logger.error(errorMessage, e)
             ctx.status(HTTP_NOT_FOUND)
             ctx.result(errorMessage)
@@ -47,7 +48,7 @@ val restServer: Javalin =
             ctx.result(errorMessage)
         }
         exception(NotEnoughMoneyException::class.java) { e, ctx ->
-            val errorMessage = "Not enough money on account ${e.id} to withdraw ${e.amount}, current balance is ${e.balance}"
+            val errorMessage = "Not enough money on account ${e.accountId.id} to withdraw ${e.amount}, current balance is ${e.balance}"
             logger.error(errorMessage, e)
             ctx.status(HTTP_BAD_REQUEST)
             ctx.result(errorMessage)
@@ -65,7 +66,7 @@ val restServer: Javalin =
             ctx.status(HTTP_CREATED)
         }
         get(ACCOUNTS_FIND_ENDPOINT) { ctx ->
-            val id = ctx.pathParam("id").toLong()
+            val id = AccountId(ctx.pathParam("id").toLong())
             ctx.json(AccountStorage.find(id))
             ctx.status(HTTP_OK)
         }

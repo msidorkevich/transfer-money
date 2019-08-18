@@ -4,12 +4,12 @@ import sidomik.samples.transfermoney.exceptions.NotEnoughMoneyException
 import java.math.BigDecimal
 
 data class Account(val name: String,
-                   var balance: BigDecimal) {
-    var id: Long = -1
+                   @Volatile var balance: BigDecimal) {
+    var accountId: AccountId = AccountId(-1)
 
-    fun withDraw(amount: BigDecimal) {
+    fun withdraw(amount: BigDecimal) {
         if (balance < amount) {
-            throw NotEnoughMoneyException(id, balance, amount)
+            throw NotEnoughMoneyException(accountId, balance, amount)
         }
         balance -= amount
     }
@@ -18,3 +18,5 @@ data class Account(val name: String,
         balance += amount
     }
 }
+
+data class AccountId(val id: Long)

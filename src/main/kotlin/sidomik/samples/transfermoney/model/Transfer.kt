@@ -2,6 +2,6 @@ package sidomik.samples.transfermoney.model
 
 import java.math.BigDecimal
 
-data class Transfer(val from: Long,
-                    val to: Long,
+data class Transfer(val from: AccountId,
+                    val to: AccountId,
                     val amount: BigDecimal)

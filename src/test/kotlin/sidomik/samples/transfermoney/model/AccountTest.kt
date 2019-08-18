@@ -11,12 +11,12 @@ class AccountTest {
 
     @Test (expected = NotEnoughMoneyException::class)
     fun notEnoughBalance() {
-        account.withDraw(BigDecimal(("1000.00001")))
+        account.withdraw(BigDecimal(("1000.00001")))
     }
 
     @Test
     fun withDraw() {
-        account.withDraw(BigDecimal("500.0"))
+        account.withdraw(BigDecimal("500.0"))
 
         assertThat(account.balance).isEqualByComparingTo(BigDecimal("500.0"))
     }
