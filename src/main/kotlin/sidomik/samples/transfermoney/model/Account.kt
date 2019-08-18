@@ -1,6 +1,6 @@
 package sidomik.samples.transfermoney.model
 
-import java.lang.IllegalArgumentException
+import sidomik.samples.transfermoney.exceptions.NotEnoughMoneyException
 import java.math.BigDecimal
 
 data class Account(val name: String,
@@ -9,8 +9,7 @@ data class Account(val name: String,
 
     fun withDraw(amount: BigDecimal) {
         if (balance < amount) {
-            throw IllegalArgumentException("Account $id has balance=$balance less than amount=$amount")
-
+            throw NotEnoughMoneyException(id, balance, amount)
         }
         balance -= amount
     }

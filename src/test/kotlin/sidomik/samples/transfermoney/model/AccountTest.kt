@@ -2,13 +2,14 @@ package sidomik.samples.transfermoney.model
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
+import sidomik.samples.transfermoney.exceptions.NotEnoughMoneyException
 import java.math.BigDecimal
 
 class AccountTest {
 
-    val account = Account("John Smith", BigDecimal("1000.0"))
+    private val account = Account("John Smith", BigDecimal("1000.0"))
 
-    @Test (expected = IllegalArgumentException::class)
+    @Test (expected = NotEnoughMoneyException::class)
     fun notEnoughBalance() {
         account.withDraw(BigDecimal(("1000.00001")))
     }

@@ -4,6 +4,10 @@ import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.post
 import org.slf4j.LoggerFactory
+import sidomik.samples.transfermoney.exceptions.NegativeBalanceException
+import sidomik.samples.transfermoney.exceptions.NonExistingAccountException
+import sidomik.samples.transfermoney.exceptions.NonPositiveAmountException
+import sidomik.samples.transfermoney.exceptions.NotEnoughMoneyException
 import sidomik.samples.transfermoney.logic.MoneyTransferer
 import sidomik.samples.transfermoney.model.Account
 import sidomik.samples.transfermoney.model.Transfer
@@ -19,10 +23,34 @@ private val logger = LoggerFactory.getLogger("rest-controller")
 
 val restServer: Javalin =
     Javalin.create().apply {
+        exception(NegativeBalanceException::class.java) { e, ctx ->
+            val errorMessage = "Cant create account with negative balance ${e.balance}"
+            logger.error(errorMessage, e)
+            ctx.status(400)
+            ctx.result(errorMessage)
+        }
+        exception(NonExistingAccountException::class.java) { e, ctx ->
+            val errorMessage = "Can't find account with id ${e.id}"
+            logger.error(errorMessage, e)
+            ctx.status(404)
+            ctx.result(errorMessage)
+        }
+        exception(NonPositiveAmountException::class.java) { e, ctx ->
+            val errorMessage = "Amount should be positive, but is ${e.amount.toPlainString()}"
+            logger.error(errorMessage, e)
+            ctx.status(400)
+            ctx.result(errorMessage)
+        }
+        exception(NotEnoughMoneyException::class.java) { e, ctx ->
+            val errorMessage = "Not enough money on account ${e.id} to withdraw ${e.amount}, current balance is ${e.balance}"
+            logger.error(errorMessage, e)
+            ctx.status(400)
+            ctx.result(errorMessage)
+        }
         exception(Exception::class.java) { e, ctx ->
             logger.error("Error while executing request ${ctx.req}", e)
             ctx.status(404)
-            ctx.json(e.message ?: "General Error")
+            ctx.result(e.message ?: "General Error")
         }
     }.routes {
         post(ACCOUNTS_CREATE_ENDPOINT) { ctx ->
