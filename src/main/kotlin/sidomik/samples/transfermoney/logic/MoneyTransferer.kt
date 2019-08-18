@@ -26,8 +26,8 @@ object MoneyTransferer {
 
         sync(fromAccount.accountId) {
             sync(toAccount.accountId) {
-                fromAccount.withdraw(amount)
-                toAccount.deposit(amount)
+                fromAccount.add(-amount)
+                toAccount.add(amount)
             }
         }
     }

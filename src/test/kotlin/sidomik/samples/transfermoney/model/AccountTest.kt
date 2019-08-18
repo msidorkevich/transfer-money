@@ -10,20 +10,20 @@ class AccountTest {
     private val account = Account("John Smith", BigDecimal("1000.0"))
 
     @Test (expected = NotEnoughMoneyException::class)
-    fun notEnoughBalance() {
-        account.withdraw(BigDecimal(("1000.00001")))
+    fun withdrawNotEnoughBalance() {
+        account.add(BigDecimal(("-1000.00001")))
     }
 
     @Test
-    fun withDraw() {
-        account.withdraw(BigDecimal("500.0"))
+    fun withdraw() {
+        account.add(BigDecimal("-500.0"))
 
         assertThat(account.balance).isEqualByComparingTo(BigDecimal("500.0"))
     }
 
     @Test
     fun deposit() {
-        account.deposit(BigDecimal("500.0"))
+        account.add(BigDecimal("500.0"))
 
         assertThat(account.balance).isEqualByComparingTo(BigDecimal("1500.0"))
     }
